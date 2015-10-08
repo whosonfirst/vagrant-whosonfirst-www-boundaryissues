@@ -22,6 +22,9 @@ Vagrant.configure(2) do |config|
   # `vagrant box outdated`. This is not recommended.
   # config.vm.box_check_update = false
 
+  config.ssh.insert_key = false
+  config.ssh.forward_agent = true
+
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
@@ -93,7 +96,7 @@ then
     sudo chmod 700 /usr/local/mapzen/lockedbox
 fi
 
-if [ ! -d /usr/local/mapzen/certified]
+if [ ! -d /usr/local/mapzen/certified ]
 then
     git clone https://github.com/rcrowley/certified.git /usr/local/mapzen/certified
     cd /usr/local/mapzen/certified
@@ -101,23 +104,26 @@ then
     cd -
 fi
 
-# get fresh data
-
-if [ -d /usr/local/mapzen/whosonfirst-data ]
-	cd /usr/local/mapzen/whosonfirst-data
-	git pull origin master
-	cd -
-fi
-
-# setting up the actual application
+# Setting up the actual application - see what's going on? basically configuring
+# vagrant to do the right thing with ssh keys and stuff like github during the
+# provisioning phase is a gigantic nuisance. So, we're just going to fake it for
+# now and assume that it is possible to do all the usual GH stuff once you've 
+# logged in... (20151008/thisisaaronland)
 
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
-	git@github.com:mapzen/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
+	# git clone git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
+	git clone https://github.com/whosonfirst/vagrant-whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
+
+	sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
 	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
+	git remote rm origin
+	git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
 else
 	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
-	git pull origin master
+
+	# See above
+	# git pull origin master
 fi
 
 # DO STUFF HERE
