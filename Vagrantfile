@@ -48,13 +48,13 @@ Vagrant.configure(2) do |config|
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider "virtualbox" do |vb|
+  config.vm.provider "virtualbox" do |vb|
   #   # Display the VirtualBox GUI when booting the machine
   #   vb.gui = true
   #
   #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
+      vb.memory = "4096"
+  end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
@@ -74,7 +74,8 @@ sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattended-upgrades python-setuptools unzip
 sudo apt-get install -y make nginx gunicorn python-gevent python-flask
-sudo apt-get install postgresql-client-common postgresql-client-9.3 python-psycopg2 
+sudo apt-get install -y postgresql-client-common postgresql-client-9.3 python-psycopg2 
+sudo apt-get install -y ruby-ronn
 # setup repositories for oracle8 and elasticsearch
 # sudo apt-get install -y oracle-java8-installer elasticsearch
 
@@ -96,52 +97,32 @@ if [ ! -d /usr/local/mapzen/certified]
 then
     git clone https://github.com/rcrowley/certified.git /usr/local/mapzen/certified
     cd /usr/local/mapzen/certified
-    sudo apt-get install -y ruby-ronn
     sudo make install
     cd -
-
-    certified-ca C="US" ST="CA" L="San Francisco" O="Whosonfirst" CN="Whosonfirst Boundary Issues CA"
 fi
 
-if [ ! -f /usr/local/mapzen/lockedbox/wof-boundaryissues.key ]
-then
+# get fresh data
 
-    if [ ! -f /usr/local/mapzen/lockedbox/wof-boundaryissues-key-crt.txt ]
-	PUBLIC_IP=`curl http://169.254.169.254/latest/meta-data/public-ipv4`
-	sudo certified CN="localhost" +"${PUBLIC_IP}" > /usr/local/mapzen/lockedbox/wof-boundaryissues-key-crt.txt
-    fi
-
-    sudo chown root /usr/local/mapzen/lockedbox/wof-boundaryissues-key-crt.txt
-    sudo chmod 600 /usr/local/mapzen/lockedbox/wof-boundaryissues-key-crt.txt
-
-    echo "wof-boundaryissues key and cert have been generated but you still need to install them separately yourself"
-fi
-     
-# git@github.com:mapzen/py-mapzen-whosonfirst-spatial.git
-# git@github.com:mapzen/py-mapzen-whosonfirst-search.git
-
-if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
-then
-	cd 
-	git@github.com:mapzen/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
-	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
-	# install me...
-	cd -
-else
-	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
-	git pull origin master
-	# re-install me?
-	cd -	
-fi
-
-if [ ! -d /usr/local/mapzen/whosonfirst-data ]
-then
-	git clone git@github.com:mapzen/whosonfirst-data.git /usr/local/mapzen/whosonfirst-data
-else
+if [ -d /usr/local/mapzen/whosonfirst-data ]
 	cd /usr/local/mapzen/whosonfirst-data
 	git pull origin master
 	cd -
 fi
+
+# setting up the actual application
+
+if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
+then
+	git@github.com:mapzen/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
+	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
+else
+	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
+	git pull origin master
+fi
+
+# DO STUFF HERE
+
+cd -	
 
 # index the data...
 
