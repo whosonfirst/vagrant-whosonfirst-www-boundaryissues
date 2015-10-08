@@ -76,6 +76,7 @@ Vagrant.configure(2) do |config|
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattended-upgrades python-setuptools unzip
+sudo apt-get install -y gdal-bin
 sudo apt-get install -y make nginx gunicorn python-gevent python-flask
 sudo apt-get install -y postgresql-client-common postgresql-client-9.3 python-psycopg2 
 sudo apt-get install -y ruby-ronn
@@ -104,11 +105,29 @@ then
     cd -
 fi
 
-# Setting up the actual application - see what's going on? basically configuring
+# Setting up things from github:whosonfirst - see what's going on? basically configuring
 # vagrant to do the right thing with ssh keys and stuff like github during the
 # provisioning phase is a gigantic nuisance. So, we're just going to fake it for
 # now and assume that it is possible to do all the usual GH stuff once you've 
 # logged in... (20151008/thisisaaronland)
+
+if [ ! -d /usr/local/mapzen/py-mapzen-whosonfirst-bundle ]
+then
+
+	git clone https://github.com/whosonfirst/py-mapzen-whosonfirst-bundle.git /usr/local/mapzen/py-mapzen-whosonfirst-bundle
+	sudo chown -R vagrant.vagrant /usr/local/mapzen/py-mapzen-whosonfirst-bundle
+
+	cd /usr/local/mapzen/py-mapzen-whosonfirst-bundle
+	git remote rm origin
+	git remote add origin git@github.com:whosonfirst/py-mapzen-whosonfirst-bundle.git
+
+	sudo python ./setup.py install
+	cd -
+else
+	cd /usr/local/mapzen/py-mapzen-whosonfirst-bundle
+	sudo python ./setup.py install
+	cd -
+fi 
 
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
