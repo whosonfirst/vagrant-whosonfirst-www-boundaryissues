@@ -115,14 +115,21 @@ else
     sudo -u postgres psql -d whosonfirst -c "VACUUM ANALYZE;"
 fi
 
-touch /usr/local/mapzen/whosonfirst.cfg
-chown vagrant.vagrant /usr/local/mapzen/whosonfirst.cfg
-chmod 600 /usr/local/mapzen/whosonfirst.cfg
-echo "[whosonfirst]" >> /usr/local/mapzen/whosonfirst.cfg
-echo "db_user=postgres" >> /usr/local/mapzen/whosonfirst.cfg
-echo "db_pswd=" >> /usr/local/mapzen/whosonfirst.cfg
-echo "db_host=localhost" >> /usr/local/mapzen/whosonfirst.cfg
-echo "db_name=whosonfirst" >> /usr/local/mapzen/whosonfirst.cfg
+# make sure there is a config file for whosonfirst stuff
+
+if [ -f /usr/local/mapzen/whosonfirst.cfg ]
+then
+   echo "whosonfirst config already exists"
+else
+   touch /usr/local/mapzen/whosonfirst.cfg
+   chown vagrant.vagrant /usr/local/mapzen/whosonfirst.cfg
+   chmod 600 /usr/local/mapzen/whosonfirst.cfg
+   echo "[whosonfirst]" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "db_user=postgres" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "db_pswd=" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "db_host=localhost" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "db_name=whosonfirst" >> /usr/local/mapzen/whosonfirst.cfg
+fi
 
 # make sure elasticsearch is running
 
