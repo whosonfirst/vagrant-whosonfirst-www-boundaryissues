@@ -79,7 +79,7 @@ sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattende
 sudo apt-get install -y gdal-bin
 sudo apt-get install -y golang
 sudo apt-get install -y make nginx gunicorn python-gevent python-flask
-sudo apt-get install -y postgresql-9.3-postgis-2.1 python-psycopg2 
+sudo apt-get install -y postgresql-9.3 postgresql-client postgis postgresql-9.3-postgis-scripts python-psycopg2
 sudo apt-get install -y ruby-ronn
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html
@@ -99,6 +99,30 @@ sudo update-rc.d elasticsearch defaults 95 10
 echo "MAKING POSTGRES DESPERATELY INSECURE ON LOCALHOST"
 sudo cp /etc/postgresql/9.3/main/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf.bak
 sudo perl -p -i -e 's/local\s+all\s+postgres\s+peer/local\tall\tpostgres\ttrust/' /etc/postgresql/9.3/main/pg_hba.conf
+
+# see also:
+# https://github.com/whosonfirst/whosonfirst-www-boundaryissues/blob/master/ubuntu/setup-postgres.sh
+
+if sudo -u postgres psql -lqt | cut -d '|' -f 1 | grep -w whosonfirst; then
+    echo "whosonfirst database already exists"
+else
+    sudo -u postgres createdb whosonfirst
+    sudo -u postgres psql -d whosonfirst -c "CREATE EXTENSION postgis;"
+    sudo -u postgres psql -d whosonfirst -c "CREATE EXTENSION postgis_topology;"
+    sudo -u postgres psql -d whosonfirst -c "CREATE TABLE whosonfirst (id BIGINT PRIMARY KEY, parent_id BIGINT, placetype VARCHAR, properties TEXT, geom GEOGRAPHY(MULTIPOLYGON, 4326), centroid GEOGRAPHY(POINT, 4326));"
+    sudo -u postgres psql -d whosonfirst -c "CREATE INDEX by_geom ON whosonfirst USING GIST(geom);"
+    sudo -u postgres psql -d whosonfirst -c "CREATE INDEX by_placetype ON whosonfirst (placetype);"
+    sudo -u postgres psql -d whosonfirst -c "VACUUM ANALYZE;"
+fi
+
+touch /usr/local/mapzen/whosonfirst.cfg
+chown vagrant.vagrant /usr/local/mapzen/whosonfirst.cfg
+chmod 600 /usr/local/mapzen/whosonfirst.cfg
+echo "[whosonfirst]" >> /usr/local/mapzen/whosonfirst.cfg
+echo "db_user=postgres" >> /usr/local/mapzen/whosonfirst.cfg
+echo "db_pswd=" >> /usr/local/mapzen/whosonfirst.cfg
+echo "db_host=localhost" >> /usr/local/mapzen/whosonfirst.cfg
+echo "db_name=whosonfirst" >> /usr/local/mapzen/whosonfirst.cfg
 
 # make sure elasticsearch is running
 
