@@ -124,11 +124,15 @@ else
    touch /usr/local/mapzen/whosonfirst.cfg
    chown vagrant.vagrant /usr/local/mapzen/whosonfirst.cfg
    chmod 600 /usr/local/mapzen/whosonfirst.cfg
-   echo "[whosonfirst]" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "[spatial]" >> /usr/local/mapzen/whosonfirst.cfg
    echo "db_user=postgres" >> /usr/local/mapzen/whosonfirst.cfg
    echo "db_pswd=" >> /usr/local/mapzen/whosonfirst.cfg
    echo "db_host=localhost" >> /usr/local/mapzen/whosonfirst.cfg
    echo "db_name=whosonfirst" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "[search]" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "host=localhost" >> /usr/local/mapzen/whosonfirst.cfg
+   echo "port=9200" >> /usr/local/mapzen/whosonfirst.cfg
 fi
 
 # make sure elasticsearch is running
