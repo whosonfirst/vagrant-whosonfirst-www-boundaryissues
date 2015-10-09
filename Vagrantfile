@@ -77,8 +77,9 @@ sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattended-upgrades python-setuptools unzip
 sudo apt-get install -y gdal-bin
+sudo apt-get install -y golang
 sudo apt-get install -y make nginx gunicorn python-gevent python-flask
-sudo apt-get install -y postgresql-client-common postgresql-client-9.3 python-psycopg2 
+sudo apt-get install -y postgresql-9.3-postgis-2.1 python-psycopg2 
 sudo apt-get install -y ruby-ronn
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html
@@ -93,6 +94,23 @@ echo "deb http://packages.elastic.co/elasticsearch/1.7/debian stable main" | sud
 sudo apt-get update && sudo apt-get install elasticsearch
 sudo update-rc.d elasticsearch defaults 95 10
 
+# make sure postgres is set up correctly which mostly means copying this:
+# https://github.com/jackdb/pg-app-dev-vm/blob/master/Vagrant-setup/bootstrap.sh
+
+# make sure elasticsearch is running
+
+if [ -f /var/run/elasticsearch/elasticsearch.pid ]
+then 
+     sudo /etc/init.d/elasticsearch start
+     sleep 10
+else
+
+	# make sure elasticsearch is actually running...
+	PID=`cat /var/run/elasticsearch/elasticsearch.pid`
+	# ps -p ${PID}
+fi
+
+# mapzen/whosonfirst stuff
 
 if [ ! -d /usr/local/mapzen ]
 then
@@ -115,6 +133,9 @@ then
     sudo make install
     cd -
 fi
+
+# index all the data - this takes a while
+# /usr/local/bin/wof-es-index -s /usr/local/mapzen/whosonfirst-data/data -b -v
 
 # Setting up things from github:whosonfirst - see what's going on? basically configuring
 # vagrant to do the right thing with ssh keys and stuff like github during the
@@ -143,7 +164,7 @@ fi
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
 	# git clone git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
-	git clone https://github.com/whosonfirst/vagrant-whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
+	git clone https://github.com/whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
 
 	sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
 	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
@@ -159,23 +180,6 @@ fi
 # DO STUFF HERE
 
 cd -	
-
-# make sure elasticsearch is running
-
-if [ -f /var/run/elasticsearch/elasticsearch.pid ]
-then 
-     sudo /etc/init.d/elasticsearch start
-     sleep 10
-else
-
-	# make sure elasticsearch is actually running...
-	PID=`cat /var/run/elasticsearch/elasticsearch.pid`
-	# ps -p ${PID}
-fi
-
-# index all the data
-
-/usr/local/bin/wof-es-index -s /usr/local/mapzen/whosonfirst-data/data -b 
 
   SHELL
 end
