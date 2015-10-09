@@ -160,9 +160,22 @@ fi
 
 cd -	
 
-# index the data...
+# make sure elasticsearch is running
 
-# (re)start all the servers
+if [ -f /var/run/elasticsearch/elasticsearch.pid ]
+then 
+     sudo /etc/init.d/elasticsearch start
+     sleep 10
+else
+
+	# make sure elasticsearch is actually running...
+	PID=`cat /var/run/elasticsearch/elasticsearch.pid`
+	# ps -p ${PID}
+fi
+
+# index all the data
+
+/usr/local/bin/wof-es-index -s /usr/local/mapzen/whosonfirst-data/data -b 
 
   SHELL
 end
