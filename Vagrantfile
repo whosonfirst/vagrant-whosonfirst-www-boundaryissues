@@ -94,8 +94,11 @@ echo "deb http://packages.elastic.co/elasticsearch/1.7/debian stable main" | sud
 sudo apt-get update && sudo apt-get install elasticsearch
 sudo update-rc.d elasticsearch defaults 95 10
 
-# make sure postgres is set up correctly which mostly means copying this:
-# https://github.com/jackdb/pg-app-dev-vm/blob/master/Vagrant-setup/bootstrap.sh
+# make sure postgres is set up incorrectly
+
+echo "MAKING POSTGRES DESPERATELY INSECURE ON LOCALHOST"
+sudo cp /etc/postgresql/9.3/main/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf.bak
+sudo perl -p -i -e 's/local\s+all\s+postgres\s+peer/local\tall\tpostgres\ttrust/' /etc/postgresql/9.3/main/pg_hba.conf
 
 # make sure elasticsearch is running
 
