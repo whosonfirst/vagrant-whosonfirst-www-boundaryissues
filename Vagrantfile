@@ -46,7 +46,11 @@ Vagrant.configure(2) do |config|
   # argument is a set of non-required options.
   config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data", "/usr/local/mapzen/whosonfirst-data"
   # config.vm.synced_folder "/usr/local/mapzen/whosonfirst-venue", "/usr/local/mapzen/whosonfirst-venue"
-  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues"
+  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues",
+    id: "whosonfirst-www-boundaryissues",
+    owner: "vagrant",
+    group: "www-data",
+    mount_options: ["dmode=775,fmode=664"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
