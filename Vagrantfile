@@ -46,6 +46,7 @@ Vagrant.configure(2) do |config|
   # argument is a set of non-required options.
   config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data", "/usr/local/mapzen/whosonfirst-data"
   # config.vm.synced_folder "/usr/local/mapzen/whosonfirst-venue", "/usr/local/mapzen/whosonfirst-venue"
+  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -75,16 +76,17 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: <<-SHELL
 sudo apt-get update
 sudo apt-get upgrade -y
-sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattended-upgrades python-setuptools unzip
+sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattended-upgrades python-dev python-setuptools unzip
 sudo apt-get install -y gdal-bin
 sudo apt-get install -y golang
-sudo apt-get install -y make nginx gunicorn python-gevent python-flask
 sudo apt-get install -y postgresql-9.3 postgresql-client postgis postgresql-9.3-postgis-scripts python-psycopg2
 sudo apt-get install -y ruby-ronn
+sudo apt-get install -y apache2 php5 mysql-server libapache2-mod-php5 php5-mysql php5-mcrypt
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html
 
 sudo add-apt-repository ppa:webupd8team/java -y
+sudo apt-get update
 sudo apt-get install oracle-java8-installer -y
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-repositories.html
@@ -138,7 +140,7 @@ fi
 # make sure elasticsearch is running
 
 if [ -f /var/run/elasticsearch/elasticsearch.pid ]
-then 
+then
      sudo /etc/init.d/elasticsearch start
      sleep 10
 else
@@ -178,26 +180,26 @@ fi
 # Setting up things from github:whosonfirst - see what's going on? basically configuring
 # vagrant to do the right thing with ssh keys and stuff like github during the
 # provisioning phase is a gigantic nuisance. So, we're just going to fake it for
-# now and assume that it is possible to do all the usual GH stuff once you've 
+# now and assume that it is possible to do all the usual GH stuff once you've
 # logged in... (20151008/thisisaaronland)
 
-if [ ! -d /usr/local/mapzen/py-mapzen-whosonfirst-bundle ]
+if [ ! -d /usr/local/mapzen/py-mapzen-whosonfirst ]
 then
 
-	git clone https://github.com/whosonfirst/py-mapzen-whosonfirst-bundle.git /usr/local/mapzen/py-mapzen-whosonfirst-bundle
-	sudo chown -R vagrant.vagrant /usr/local/mapzen/py-mapzen-whosonfirst-bundle
+	git clone https://github.com/whosonfirst/py-mapzen-whosonfirst.git /usr/local/mapzen/py-mapzen-whosonfirst
+	sudo chown -R vagrant.vagrant /usr/local/mapzen/py-mapzen-whosonfirst
 
 	cd /usr/local/mapzen/py-mapzen-whosonfirst-bundle
 	git remote rm origin
-	git remote add origin git@github.com:whosonfirst/py-mapzen-whosonfirst-bundle.git
+	git remote add origin git@github.com:whosonfirst/py-mapzen-whosonfirst.git
 
 	sudo python ./setup.py install
 	cd -
 else
-	cd /usr/local/mapzen/py-mapzen-whosonfirst-bundle
+	cd /usr/local/mapzen/py-mapzen-whosonfirst
 	sudo python ./setup.py install
 	cd -
-fi 
+fi
 
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
@@ -217,7 +219,7 @@ fi
 
 # DO STUFF HERE
 
-cd -	
+cd -
 
   SHELL
 end
