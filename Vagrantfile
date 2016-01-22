@@ -44,7 +44,12 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data", "/usr/local/mapzen/whosonfirst-data"
+  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data", "/usr/local/mapzen/whosonfirst-data",
+    id: "whosonfirst-data",
+    owner: "vagrant",
+    group: "www-data",
+    mount_options: ["dmode=775,fmode=664"]
+
   # config.vm.synced_folder "/usr/local/mapzen/whosonfirst-venue", "/usr/local/mapzen/whosonfirst-venue"
   config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues",
     id: "whosonfirst-www-boundaryissues",
@@ -85,7 +90,7 @@ sudo apt-get install -y gdal-bin
 sudo apt-get install -y golang
 sudo apt-get install -y postgresql-9.3 postgresql-client postgis postgresql-9.3-postgis-scripts python-psycopg2
 sudo apt-get install -y ruby-ronn
-sudo apt-get install -y apache2 php5 mysql-server libapache2-mod-php5 php5-mysql php5-mcrypt
+sudo apt-get install -y apache2 php5 mysql-server libapache2-mod-php5 php5-mysql php5-mcrypt php5-curl
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html
 
