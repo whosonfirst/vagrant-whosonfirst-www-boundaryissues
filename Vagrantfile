@@ -109,10 +109,10 @@ fi
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
   git clone https://github.com/whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
-  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
   cd /usr/local/mapzen/whosonfirst-www-boundaryissues
   git fetch
   git checkout flamework
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
   #git remote rm origin
   #git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
   cd -
@@ -125,6 +125,8 @@ echo "|                                                         |"
 echo "|   vagrant ssh                                           |"
 echo "|   cd /usr/local/mapzen/whosonfirst-www-boundaryissues   |"
 echo "|   make setup                                            |"
+echo "|                                                         |"
+echo "|   https://localhost:8990/                               |"
 echo "|                                                         |"
 echo "+---------------------------------------------------------+"
 
