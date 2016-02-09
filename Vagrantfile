@@ -44,18 +44,30 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data", "/usr/local/mapzen/whosonfirst-data",
+  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data/data", "/usr/local/mapzen/whosonfirst-data/data",
     id: "whosonfirst-data",
     owner: "vagrant",
     group: "www-data",
     mount_options: ["dmode=775,fmode=664"]
 
-  # config.vm.synced_folder "/usr/local/mapzen/whosonfirst-venue", "/usr/local/mapzen/whosonfirst-venue"
-  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues",
-    id: "whosonfirst-www-boundaryissues",
-    owner: "vagrant",
-    group: "www-data",
-    mount_options: ["dmode=775,fmode=664"]
+
+  # Note to developers (read: note to self): if you're planning to work on the
+  # Boundary Issues code using a non-console-based editor (i.e., something that
+  # is *not* emacs/vim), you may want to uncomment the following folder sync so
+  # you can work on running code from the host environment. Then... (see below)
+  #config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues"
+
+  # ... after you've finished running through the `make setup` process,
+  # re-comment out the folder sync above and then uncomment *this* one. This
+  # will allow the web server to write things to disk with the proper file
+  # permissions. It's a little tricky, but I figure most people just want to
+  # *run* the VM, and use the app, so if you are one of those people, you can
+  # safely ignore this! (20160209/dphiffer)
+  #config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues",
+  #  id: "whosonfirst-www-boundaryissues",
+  #  owner: "vagrant",
+  #  group: "www-data",
+  #  mount_options: ["dmode=775,fmode=664"]
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -84,15 +96,37 @@ Vagrant.configure(2) do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
 
-		echo "Thank you for installing Boundary Issues. Next steps:"
-		echo
-		echo "vagrant ssh"
-		echo "cd /usr/local/mapzen/whosonfirst-www-boundaryissues"
-		echo "./ubuntu/setup.sh"
-		echo "./ubuntu/setup-ubuntu.sh"
-		echo "./ubuntu/setup-apache.sh"
-		echo "./bin/configure_secrets.php ."
-		echo "./ubuntu/setup-db.sh boundaryissues boundaryissues"
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattended-upgrades python-dev python-setuptools unzip
+
+if [ ! -d /usr/local/mapzen/ ]
+then
+  sudo mkdir /usr/local/mapzen/
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/
+fi
+
+if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
+then
+  git clone https://github.com/whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
+  cd /usr/local/mapzen/whosonfirst-www-boundaryissues
+  git fetch
+  git checkout flamework
+  #git remote rm origin
+  #git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
+  cd -
+fi
+
+echo "+---------------------------------------------------------+"
+echo "|                                                         |"
+echo "|   Thank you for installing Boundary Issues.             |"
+echo "|                                                         |"
+echo "|   vagrant ssh                                           |"
+echo "|   cd /usr/local/mapzen/whosonfirst-www-boundaryissues   |"
+echo "|   make setup                                            |"
+echo "|                                                         |"
+echo "+---------------------------------------------------------+"
 
   SHELL
 end
