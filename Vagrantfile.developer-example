@@ -51,23 +51,14 @@ Vagrant.configure(2) do |config|
     mount_options: ["dmode=775,fmode=664"]
 
 
-  # Note to developers (read: note to self): if you're planning to work on the
-  # Boundary Issues code using a non-console-based editor (i.e., something that
-  # is *not* emacs/vim), you may want to uncomment the following folder sync so
-  # you can work on running code from the host environment. Then... (see below)
-  #config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues"
-
-  # ... after you've finished running through the `make setup` process,
-  # re-comment out the folder sync above and then uncomment *this* one. This
-  # will allow the web server to write things to disk with the proper file
-  # permissions. It's a little tricky, but I figure most people just want to
-  # *run* the VM, and use the app, so if you are one of those people, you can
-  # safely ignore this! (20160209/dphiffer)
-  #config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues",
-  #  id: "whosonfirst-www-boundaryissues",
-  #  owner: "vagrant",
-  #  group: "www-data",
-  #  mount_options: ["dmode=775,fmode=664"]
+  # Note to developers
+  # ------------------
+  # If you're planning to work on the Boundary Issues code using a non-console-
+  # based editor (i.e., something that is *not* emacs or vim), you may want to
+  # uncomment the following folder sync so you can work on running code from the
+  # host environment (i.e. Sublime Text or Atom Editor). Then... (see below in
+  # the provision section)
+  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -112,11 +103,20 @@ then
   cd /usr/local/mapzen/whosonfirst-www-boundaryissues
   git fetch
   git checkout flamework
+  git remote rm origin
+  git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
   sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
-  #git remote rm origin
-  #git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
   cd -
 fi
+
+# Note to developers
+# ------------------
+# ... if you enabled the synced_folder above, you'll want to uncomment the
+# following:
+rm -rf /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
+mkdir -p /usr/local/mapzen/smarty/templates_c
+chown www-data:www-data /usr/local/mapzen/smarty/templates_c
+ln -s /usr/local/mapzen/smarty/templates_c /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
 
 echo "+---------------------------------------------------------+"
 echo "|                                                         |"
