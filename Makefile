@@ -1,3 +1,8 @@
+brandnew:
+	if test -f Vagrantfile; then cp Vagrantfile Vagrantfile.last; fi
+	if test -d .vagrant; then rm -rf .vagrant; fi
+	$(MAKE) build
+
 build: setup up go
 
 setup:
