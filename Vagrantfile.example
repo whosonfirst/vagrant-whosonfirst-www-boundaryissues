@@ -50,6 +50,12 @@ Vagrant.configure(2) do |config|
     group: "www-data",
     mount_options: ["dmode=775,fmode=664"]
 
+  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-venue/data", "/usr/local/mapzen/whosonfirst-venue/data",
+    id: "whosonfirst-venue",
+    owner: "vagrant",
+    group: "www-data",
+    mount_options: ["dmode=775,fmode=664"]
+
 
   # Note to developers
   # ------------------
@@ -108,6 +114,9 @@ then
   sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
   cd -
 fi
+
+ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+ln -s /usr/local/mapzen/whosonfirst-venue/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/venue
 
 # Note to developers
 # ------------------
