@@ -99,7 +99,8 @@ fi
 if [ ! -d /usr/local/mapzen/whosonfirst-data/data/ ]
 then
   sudo mkdir -p /usr/local/mapzen/whosonfirst-data/data/
-  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-data/data/
+  sudo mkdir -p /usr/local/mapzen/whosonfirst-data/meta/
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-data/
 fi
 
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
@@ -114,10 +115,11 @@ then
   cd -
 fi
 
-if [ ! -L /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data ]
+if [ -L /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data ]
 then
-	ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+  sudo rm /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
 fi
+ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
 
 # Note to developers
 # ------------------
