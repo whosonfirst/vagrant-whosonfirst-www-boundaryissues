@@ -40,15 +40,15 @@ Vagrant.configure(2) do |config|
   # your network.
   # config.vm.network "public_network"
 
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data/data", "/usr/local/mapzen/whosonfirst-data/data",
-    id: "whosonfirst-data",
-    owner: "vagrant",
-    group: "www-data",
-    mount_options: ["dmode=775,fmode=664"]
+  # Sync your existing WOF data
+  # ---------------------------
+  # If you already have the GitHub repository checked out, you can sync your
+  # existing folder into the guest VM.
+  #config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data/data", "/usr/local/mapzen/whosonfirst-data/data",
+  #id: "whosonfirst-data",
+  #  owner: "vagrant",
+  #  group: "www-data",
+  #  mount_options: ["dmode=775,fmode=664"]
 
   # Note to developers
   # ------------------
@@ -96,6 +96,12 @@ then
   sudo chown -R vagrant.vagrant /usr/local/mapzen/
 fi
 
+if [ ! -d /usr/local/mapzen/whosonfirst-data/data/ ]
+then
+  sudo mkdir -p /usr/local/mapzen/whosonfirst-data/data/
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-data/data/
+fi
+
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
   git clone https://github.com/whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
@@ -108,16 +114,22 @@ then
   cd -
 fi
 
-ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+if [ ! -L /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data ]
+then
+	ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+fi
 
 # Note to developers
 # ------------------
 # ... if you enabled the synced_folder above, you'll want to uncomment the
 # following:
-#rm -rf /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
-#mkdir -p /usr/local/mapzen/smarty/templates_c
-#chown www-data:www-data /usr/local/mapzen/smarty/templates_c
-#ln -s /usr/local/mapzen/smarty/templates_c /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
+#if [ ! -d /usr/local/mapzen/smarty/templates_c ]
+#then
+#  rm -rf /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
+#  mkdir -p /usr/local/mapzen/smarty/templates_c
+#  chown www-data:www-data /usr/local/mapzen/smarty/templates_c
+#  ln -s /usr/local/mapzen/smarty/templates_c /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
+#fi
 
 echo "+---------------------------------------------------------+"
 echo "|                                                         |"
