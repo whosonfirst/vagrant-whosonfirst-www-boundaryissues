@@ -40,15 +40,24 @@ Vagrant.configure(2) do |config|
   # your network.
   # config.vm.network "public_network"
 
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data/data", "/usr/local/mapzen/whosonfirst-data",
-    id: "whosonfirst-data",
-    owner: "vagrant",
-    group: "www-data",
-    mount_options: ["dmode=775,fmode=664"]
+  # Sync your existing WOF data
+  # ---------------------------
+  # If you already have the GitHub repository checked out, you can sync your
+  # existing folder into the guest VM.
+  #config.vm.synced_folder "/usr/local/mapzen/whosonfirst-data/data", "/usr/local/mapzen/whosonfirst-data/data",
+  #id: "whosonfirst-data",
+  #  owner: "vagrant",
+  #  group: "www-data",
+  #  mount_options: ["dmode=775,fmode=664"]
+
+  # Note to developers
+  # ------------------
+  # If you're planning to work on the Boundary Issues code using a non-console-
+  # based editor (i.e., something that is *not* emacs or vim), you may want to
+  # uncomment the following folder sync so you can work on running code from the
+  # host environment (i.e. Sublime Text or Atom Editor). Then... (see below in
+  # the provision section)
+  #config.vm.synced_folder "/usr/local/mapzen/whosonfirst-www-boundaryissues", "/usr/local/mapzen/whosonfirst-www-boundaryissues"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -76,29 +85,65 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
+
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install -y git tcsh emacs24-nox htop sysstat ufw fail2ban unattended-upgrades python-dev python-setuptools unzip
 
-if [ ! -d /usr/local/mapzen ]
+if [ ! -d /usr/local/mapzen/ ]
 then
-    sudo mkdir /usr/local/mapzen
+  sudo mkdir /usr/local/mapzen/
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/
 fi
 
+if [ ! -d /usr/local/mapzen/whosonfirst-data/data/ ]
+then
+  sudo mkdir -p /usr/local/mapzen/whosonfirst-data/data/
+  sudo mkdir -p /usr/local/mapzen/whosonfirst-data/meta/
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-data/
+fi
 
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
-	# git clone git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
-	git clone https://github.com/whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
-
-	sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
-	cd /usr/local/mapzen/whosonfirst-www-boundaryissues
-	git remote rm origin
-	git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
-
-	cd -
-
+  git clone https://github.com/whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
+  cd /usr/local/mapzen/whosonfirst-www-boundaryissues
+  git fetch
+  git checkout flamework
+  git remote rm origin
+  git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
+  sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
+  cd -
 fi
+
+if [ -L /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data ]
+then
+  sudo rm /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+fi
+ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+
+# Note to developers
+# ------------------
+# ... if you enabled the synced_folder above, you'll want to uncomment the
+# following:
+#if [ ! -d /usr/local/mapzen/smarty/templates_c ]
+#then
+#  rm -rf /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
+#  mkdir -p /usr/local/mapzen/smarty/templates_c
+#  chown www-data:www-data /usr/local/mapzen/smarty/templates_c
+#  ln -s /usr/local/mapzen/smarty/templates_c /usr/local/mapzen/whosonfirst-www-boundaryissues/www/templates_c
+#fi
+
+echo "+---------------------------------------------------------+"
+echo "|                                                         |"
+echo "|   Thank you for installing Boundary Issues.             |"
+echo "|                                                         |"
+echo "|   vagrant ssh                                           |"
+echo "|   cd /usr/local/mapzen/whosonfirst-www-boundaryissues   |"
+echo "|   make setup                                            |"
+echo "|                                                         |"
+echo "|   https://localhost:8990/                               |"
+echo "|                                                         |"
+echo "+---------------------------------------------------------+"
 
   SHELL
 end
