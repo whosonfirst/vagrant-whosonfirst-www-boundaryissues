@@ -107,19 +107,23 @@ if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues ]
 then
   git clone https://github.com/whosonfirst/whosonfirst-www-boundaryissues.git /usr/local/mapzen/whosonfirst-www-boundaryissues
   cd /usr/local/mapzen/whosonfirst-www-boundaryissues
-  git fetch
-  git checkout flamework
   git remote rm origin
   git remote add origin git@github.com:whosonfirst/whosonfirst-www-boundaryissues.git
   sudo chown -R vagrant.vagrant /usr/local/mapzen/whosonfirst-www-boundaryissues
   cd -
 fi
 
-if [ -L /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data ]
+if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues/pending ]
 then
-  sudo rm /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+  mkdir /usr/local/mapzen/whosonfirst-www-boundaryissues/pending
+  sudo chown www-data.www-data /usr/local/mapzen/whosonfirst-www-boundaryissues/pending
 fi
-ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/www/data
+
+if [ -L /usr/local/mapzen/whosonfirst-www-boundaryissues/data ]
+then
+  sudo rm /usr/local/mapzen/whosonfirst-www-boundaryissues/data
+fi
+ln -s /usr/local/mapzen/whosonfirst-data/data /usr/local/mapzen/whosonfirst-www-boundaryissues/data
 
 # Note to developers
 # ------------------
