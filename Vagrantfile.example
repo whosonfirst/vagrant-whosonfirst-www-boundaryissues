@@ -116,7 +116,9 @@ fi
 if [ ! -d /usr/local/mapzen/whosonfirst-www-boundaryissues/pending ]
 then
   mkdir /usr/local/mapzen/whosonfirst-www-boundaryissues/pending
-  sudo chown www-data.www-data /usr/local/mapzen/whosonfirst-www-boundaryissues/pending
+  mkdir /usr/local/mapzen/whosonfirst-www-boundaryissues/pending/data
+  mkdir /usr/local/mapzen/whosonfirst-www-boundaryissues/pending/log
+  sudo chown -R www-data.www-data /usr/local/mapzen/whosonfirst-www-boundaryissues/pending
 fi
 
 if [ -L /usr/local/mapzen/whosonfirst-www-boundaryissues/data ]
